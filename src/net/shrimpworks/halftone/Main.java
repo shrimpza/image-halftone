@@ -2,20 +2,34 @@ package net.shrimpworks.halftone;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 
-public class Main {
+/**
+ * See {@link Main#help()} for startup arguments.
+ */
+public final class Main {
 
-	private static final Properties DEFAULTS = new Properties();
+	private static final Properties DEFAULTS;
+
+	/**
+	 * Format for CLI option parsing.
+	 * <p>
+	 * eg: --option-name=value
+	 */
+	private static final String OPTION_PATTERN = "--([a-zA-Z0-9-_]+)=(.+)?";
 
 	static {
+		/**
+		 * Set default options (overridden by command line options)
+		 */
+		DEFAULTS = new Properties();
 		DEFAULTS.put("dot-size", "5");
 		DEFAULTS.put("dot-space", "2");
 		DEFAULTS.put("render-scale", "6");
@@ -23,22 +37,32 @@ public class Main {
 		DEFAULTS.put("fg-color", "255,255,255");
 	}
 
-	private static final String OPTION_PATTERN = "--([a-zA-Z0-9-_]+)=(.+)?";
+	private Main() {
+	}
 
+	/**
+	 * See {@link Main#help()} for startup arguments.
+	 *
+	 * @param args application arguments
+	 * @throws IOException failed to read or write image files
+	 */
 	public static void main(String... args) throws IOException {
 		if (args.length < 2) {
 			help();
 			System.exit(1);
 		}
 
-		if (!Files.exists(Paths.get(args[args.length - 2]))) {
-			System.out.printf("File does not exist: %s%n", args[args.length - 2]);
+		Path inPath = Paths.get(args[args.length - 2]).toAbsolutePath();
+		Path outPath = Paths.get(args[args.length - 1]).toAbsolutePath();
+
+		if (!Files.exists(inPath)) {
+			System.out.printf("File does not exist: %s%n", inPath);
 			System.exit(2);
 		}
 
-		if (!Files.isDirectory(Paths.get(args[args.length - 1]).getParent())) {
-			System.out.printf("Output path does not exist: %s%n", args[args.length - 2]);
-			System.exit(3);
+		if (!Files.isDirectory(outPath.toAbsolutePath().getParent())) {
+			System.out.printf("Output path does not exist: %s%n", outPath);
+			System.exit(2);
 		}
 
 		Properties options = parseOptions(DEFAULTS, args);
@@ -50,8 +74,8 @@ public class Main {
 				stringRgbToColor(options.getProperty("bg-color")),
 				stringRgbToColor(options.getProperty("fg-color")));
 
-		BufferedImage out = halftone.halftone(ImageIO.read(new File(args[args.length - 2])));
-		ImageIO.write(out, "jpg", new File(args[args.length - 1]));
+		BufferedImage out = halftone.halftone(ImageIO.read(inPath.toFile()));
+		ImageIO.write(out, outPath.toString().substring(outPath.toString().lastIndexOf(".") + 1), outPath.toFile());
 	}
 
 	private static Color stringRgbToColor(String s) {
@@ -77,18 +101,18 @@ public class Main {
 	}
 
 	private static void help() {
-		System.out.println("Usage: image-halftone.jar [options] <input-file> <output-file>\n" +
-						   "Options and defaults:\n" +
-						   " --dot-size=" + DEFAULTS.get("dot-size") +
-						   "\n      - size of dots in pixels\n" +
-						   " --dot-space=" + DEFAULTS.get("dot-space") +
-						   "\n      - space between dots in pixels\n" +
-						   " --render-scale=" + DEFAULTS.get("render-scale") +
-						   "\n      - internally scales image up by this factor to ensure smooth dot rendering\n" +
-						   " --bg-color=" + DEFAULTS.get("bg-color") +
-						   "\n      - background color in format R,G,B, or empty to use the source image as a background\n" +
-						   " --fg-color=" + DEFAULTS.get("fg-color") +
-						   "\n      - dot color in format R,G,B, or blank to use colour of pixel from source image\n"
+		System.out.println("Usage: image-halftone.jar [options] <input-file> <output-file>\n"
+						   + "Options and defaults:\n"
+						   + " --dot-size=" + DEFAULTS.get("dot-size")
+						   + "\n      - size of dots in pixels\n"
+						   + " --dot-space=" + DEFAULTS.get("dot-space")
+						   + "\n      - space between dots in pixels\n"
+						   + " --render-scale=" + DEFAULTS.get("render-scale")
+						   + "\n      - internally scales image up by this factor to ensure smooth dot rendering\n"
+						   + " --bg-color=" + DEFAULTS.get("bg-color")
+						   + "\n      - background color in format R,G,B, or empty to use the source image as a background\n"
+						   + " --fg-color=" + DEFAULTS.get("fg-color")
+						   + "\n      - dot color in format R,G,B, or blank to use colour of pixel from source image\n"
 		);
 	}
 }

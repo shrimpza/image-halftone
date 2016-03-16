@@ -3,6 +3,9 @@ package net.shrimpworks.halftone;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+/**
+ * Halftone effect image processor.
+ */
 public class Halftone {
 
 	private final int size;
@@ -11,6 +14,20 @@ public class Halftone {
 	private final Color bg;
 	private final Color fg;
 
+	/**
+	 * Create a new Halftone image processor, with the provided settings.
+	 *
+	 * @param size    size of the halftone dots, in pixels
+	 * @param spacing spacing between the dots, in pixels
+	 * @param scale   to ensure accurate rendering of dots, the output image
+	 *                may need to be rendered at a larger scale, then scaled
+	 *                back down. the higher this value, the more memory will
+	 *                be used, but more luscious dots will be produced
+	 * @param bg      background colour, or null to use the source image
+	 *                itself as the background
+	 * @param fg      foreground (dot) colour, or null to use the colour of
+	 *                pixels under dots
+	 */
 	public Halftone(int size, int spacing, int scale, Color bg, Color fg) {
 		this.size = size;
 		this.spacing = spacing;
@@ -19,6 +36,17 @@ public class Halftone {
 		this.fg = fg;
 	}
 
+	/**
+	 * Process an image to generate a halftone effect.
+	 * <p>
+	 * A new image is created, and the original image is scanned at pixel
+	 * intervals defined by the <pre>size</pre> option, and dots are drawn on
+	 * the new image, scaled according to the brightness value of the pixel
+	 * on the original image.
+	 *
+	 * @param image input image
+	 * @return halftone effect copy of the input image
+	 */
 	public BufferedImage halftone(BufferedImage image) {
 		BufferedImage bigImage = new BufferedImage(image.getWidth() * scale, image.getHeight() * scale, BufferedImage.TYPE_INT_RGB);
 		Graphics2D graphics = bigImage.createGraphics();
