@@ -5,11 +5,14 @@ jdk:
 script:
   - ant
 
-#deploy:
-#  provider: pages
-#  skip_cleanup: true
-#  github_token: $GITHUB_TOKEN
-#  local_dir: ./dist/
-#  on:
-
 branch: master
+
+deploy:
+  provider: releases
+  api_key: $GITHUB_RELEASE_TOKEN
+  file:
+    - dist/image-halftone.jar
+    - dist/image-halftone-javadoc.jar
+  skip_cleanup: true
+  on:
+    tags: true
