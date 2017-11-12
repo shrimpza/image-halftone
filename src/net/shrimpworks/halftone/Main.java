@@ -32,6 +32,7 @@ public final class Main {
 		DEFAULTS = new Properties();
 		DEFAULTS.put("dot-size", "5");
 		DEFAULTS.put("dot-space", "2");
+		DEFAULTS.put("dot-shape", "dot");
 		DEFAULTS.put("render-scale", "6");
 		DEFAULTS.put("bg-color", "0,0,0");
 		DEFAULTS.put("fg-color", "255,255,255");
@@ -71,6 +72,7 @@ public final class Main {
 				Integer.parseInt(options.getProperty("dot-size")),
 				Integer.parseInt(options.getProperty("dot-space")),
 				Integer.parseInt(options.getProperty("render-scale")),
+				Halftone.DotShape.valueOf(options.getProperty("dot-shape").toUpperCase()),
 				stringRgbToColor(options.getProperty("bg-color")),
 				stringRgbToColor(options.getProperty("fg-color")));
 

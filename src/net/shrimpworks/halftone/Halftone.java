@@ -8,9 +8,15 @@ import java.awt.image.BufferedImage;
  */
 public class Halftone {
 
+	public enum DotShape {
+		DOT,
+		BLOCK
+	}
+
 	private final int size;
 	private final int spacing;
 	private final int scale;
+	private final DotShape shape;
 	private final Color bg;
 	private final Color fg;
 
@@ -23,15 +29,17 @@ public class Halftone {
 	 *                may need to be rendered at a larger scale, then scaled
 	 *                back down. the higher this value, the more memory will
 	 *                be used, but more luscious dots will be produced
+	 * @param shape   of the halftone dots
 	 * @param bg      background colour, or null to use the source image
 	 *                itself as the background
 	 * @param fg      foreground (dot) colour, or null to use the colour of
-	 *                pixels under dots
+	 *                the pixels under the dot
 	 */
-	public Halftone(int size, int spacing, int scale, Color bg, Color fg) {
+	public Halftone(int size, int spacing, int scale, DotShape shape, Color bg, Color fg) {
 		this.size = size;
 		this.spacing = spacing;
 		this.scale = scale;
+		this.shape = shape;
 		this.bg = bg;
 		this.fg = fg;
 	}
@@ -68,9 +76,15 @@ public class Halftone {
 
 				float dotSize = (float)(size * scale) * (hsb[2]);
 
-				graphics.fillOval((x - ((size - spacing) / 2)) * scale,
-								  (y - ((size - spacing) / 2)) * scale,
-								  Math.round(dotSize), Math.round(dotSize));
+				if (shape == DotShape.DOT) {
+					graphics.fillOval((x - ((size - spacing) / 2)) * scale,
+									  (y - ((size - spacing) / 2)) * scale,
+									  Math.round(dotSize), Math.round(dotSize));
+				} else if (shape == DotShape.BLOCK) {
+					graphics.fillRect((x - ((size - spacing) / 2)) * scale,
+									  (y - ((size - spacing) / 2)) * scale,
+									  Math.round(dotSize), Math.round(dotSize));
+				}
 			}
 		}
 
