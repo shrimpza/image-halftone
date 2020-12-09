@@ -5,8 +5,9 @@ image.
 
 ## Building
 
-After cloning the project, execute `ant` within the project root directory to
-build. The runnable `jar` file will be placed within the `dist` directory.
+After cloning the project, execute `./gradlew build` within the project root 
+directory to build. The runnable `jar` file will be placed within the 
+`build/libs` directory.
 
 
 ## Usage

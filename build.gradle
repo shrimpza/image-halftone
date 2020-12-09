@@ -1,0 +1,64 @@
+plugins {
+	id 'java'
+	id 'application'
+	id 'maven-publish'
+}
+
+group = 'net.shrimpworks'
+version = '2.0'
+
+mainClassName = 'net.shrimpworks.halftone.Main'
+
+compileJava {
+	options.release = 8
+}
+
+if (System.getenv().containsKey("DRONE_BUILD_NUMBER")) {
+	version = "${version}.${System.env.DRONE_BUILD_NUMBER}"
+}
+
+repositories {
+	mavenCentral()
+	maven {
+		url "https://code.shrimpworks.za.net/artefacts"
+	}
+}
+
+publishing {
+	repositories {
+		maven {
+			name = "ShrimpWorks"
+			url = 'https://code.shrimpworks.za.net/artefacts/'
+			authentication {
+				basic(BasicAuthentication)
+			}
+			credentials(PasswordCredentials) {
+				username = "${System.env.ARTEFACTS_USER}"
+				password = "${System.env.ARTEFACTS_PASSWORD}"
+			}
+		}
+	}
+	publications {
+		maven(MavenPublication) {
+			from components.java
+		}
+	}
+}
+
+jar {
+	manifest {
+		attributes(
+				'Implementation-Title': project.name,
+				'Implementation-Version': project.version,
+				'Main-Class': mainClassName,
+		)
+	}
+}
+
+dependencies {
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
+}
+
+test {
+	useJUnitPlatform()
+}

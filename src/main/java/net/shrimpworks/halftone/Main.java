@@ -26,7 +26,7 @@ public final class Main {
 	private static final String OPTION_PATTERN = "--([a-zA-Z0-9-_]+)=(.+)?";
 
 	static {
-		/**
+		/*
 		 * Set default options (overridden by command line options)
 		 */
 		DEFAULTS = new Properties();
@@ -68,15 +68,14 @@ public final class Main {
 
 		Properties options = parseOptions(DEFAULTS, args);
 
-		Halftone halftone = new Halftone(
-				Integer.parseInt(options.getProperty("dot-size")),
-				Integer.parseInt(options.getProperty("dot-space")),
-				Integer.parseInt(options.getProperty("render-scale")),
-				Halftone.DotShape.valueOf(options.getProperty("dot-shape").toUpperCase()),
-				stringRgbToColor(options.getProperty("bg-color")),
-				stringRgbToColor(options.getProperty("fg-color")));
+		Halftone halftone = new Halftone(inPath);
 
-		BufferedImage out = halftone.halftone(ImageIO.read(inPath.toFile()));
+		BufferedImage out = halftone.halftone(Integer.parseInt(options.getProperty("dot-size")),
+											  Integer.parseInt(options.getProperty("dot-space")),
+											  Integer.parseInt(options.getProperty("render-scale")),
+											  Halftone.DotShape.valueOf(options.getProperty("dot-shape").toUpperCase()),
+											  stringRgbToColor(options.getProperty("bg-color")),
+											  stringRgbToColor(options.getProperty("fg-color")));
 		ImageIO.write(out, outPath.toString().substring(outPath.toString().lastIndexOf(".") + 1), outPath.toFile());
 	}
 

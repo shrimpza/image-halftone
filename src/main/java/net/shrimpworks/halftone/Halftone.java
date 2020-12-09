@@ -2,6 +2,9 @@ package net.shrimpworks.halftone;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.nio.file.Path;
+import javax.imageio.ImageIO;
 
 /**
  * Halftone effect image processor.
@@ -13,15 +16,28 @@ public class Halftone {
 		BLOCK
 	}
 
-	private final int size;
-	private final int spacing;
-	private final int scale;
-	private final DotShape shape;
-	private final Color bg;
-	private final Color fg;
+	private final BufferedImage image;
 
 	/**
-	 * Create a new Halftone image processor, with the provided settings.
+	 * Create a new Halftone image processor, for the provided image.
+	 *
+	 * @param image input image
+	 */
+	public Halftone(BufferedImage image) {
+		this.image = image;
+	}
+
+	public Halftone(Path imagePath) throws IOException {
+		this(ImageIO.read(imagePath.toFile()));
+	}
+
+	/**
+	 * Process an image to generate a halftone effect.
+	 * <p>
+	 * A new image is created, and the original image is scanned at pixel
+	 * intervals defined by the <pre>size</pre> option, and dots are drawn on
+	 * the new image, scaled according to the brightness value of the pixel
+	 * on the original image.
 	 *
 	 * @param size    size of the halftone dots, in pixels
 	 * @param spacing spacing between the dots, in pixels
@@ -34,28 +50,9 @@ public class Halftone {
 	 *                itself as the background
 	 * @param fg      foreground (dot) colour, or null to use the colour of
 	 *                the pixels under the dot
-	 */
-	public Halftone(int size, int spacing, int scale, DotShape shape, Color bg, Color fg) {
-		this.size = size;
-		this.spacing = spacing;
-		this.scale = scale;
-		this.shape = shape;
-		this.bg = bg;
-		this.fg = fg;
-	}
-
-	/**
-	 * Process an image to generate a halftone effect.
-	 * <p>
-	 * A new image is created, and the original image is scanned at pixel
-	 * intervals defined by the <pre>size</pre> option, and dots are drawn on
-	 * the new image, scaled according to the brightness value of the pixel
-	 * on the original image.
-	 *
-	 * @param image input image
 	 * @return halftone effect copy of the input image
 	 */
-	public BufferedImage halftone(BufferedImage image) {
+	public BufferedImage halftone(int size, int spacing, int scale, DotShape shape, Color bg, Color fg) {
 		BufferedImage bigImage = new BufferedImage(image.getWidth() * scale, image.getHeight() * scale, BufferedImage.TYPE_INT_RGB);
 		Graphics2D graphics = bigImage.createGraphics();
 		graphics.setColor(bg);
