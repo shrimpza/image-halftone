@@ -11,7 +11,7 @@ steps:
     image: gradle:6.7.1-jdk11
     volumes:
       - name: build-output
-        path: ./build/libs/
+        path: /tmp/build/jar/
     environment:
       ARTEFACTS_USER:
         from_secret: ARTEFACTS_USER
@@ -19,17 +19,18 @@ steps:
         from_secret: ARTEFACTS_PASSWORD
     commands:
       - gradle jar publish
+      - cp ./build/libs/* /tmp/build/jar/
     when:
       event: tag
   - name: release
     image: plugins/github-release
     volumes:
       - name: build-output
-        path: ./build/libs/
+        path: /tmp/build/jar/
     settings:
       api_key:
         from_secret: GH_TOKEN
-      files: ./build/libs/*
+      files: /tmp/build/jar/*
     when:
       event: tag
 
